@@ -4,62 +4,43 @@
 #include <assert.h>
 
 
-int HashTable::HashFunction(std::string s , int N)
-{
-    const int  p  = 5;
-    const int m = pow(2,9);
-    int idx = 0 ;
-    for (int i = 0 ; i < N  ; i++)
-    {
-        idx = idx + s[i]*pow(p,i);
+// In hash.hpp/cpp
+size_t HashTable::HashFunction( const std::string& s)  {
+   
+    const size_t P = 1315423911u; 
+    size_t h = 0;
+    for (unsigned char c : s) {
+        h = h * 131u + c; 
     }
-    return idx % m ;
-
-
+    return h % capacity;   
 }
-void HashTable::Insert(std::string key,std::string Value )
+
+void HashTable::Insert(const std::string& Key, const std::string& Value)
 {
-    std::cout << capacity ;
-    int Hash_idx = HashFunction(key,key.length()) % capacity;
-    /* check if the bucket is empty or no */
-    std::pair Key_Value = (*Buckets)[Hash_idx];
-    if(Key_Value.first == "")
-    {
-        std::pair<std::string,std::string> key_value ;
-        key_value.first = key ;
-        key_value.second =Value ;
-       (*Buckets)[Hash_idx] = key_value;
 
-    }
-    else if (Key_Value.first == key)
+    for(int step = 0 ; step < capacity; step ++)
     {
-        std:: cout << "Key already existing " ;
-    }
-    else
-    {
-        /*rehash until find an empty place */
-        int is_hashed = 0 ;
-        int c = 1    ;
-        while(is_hashed == 0 and c < capacity)
+        size_t hash_idx = (HashFunction(Key) + step)%capacity ;
+        auto kv =  (*Buckets)[hash_idx] ;
+        if(kv.first == "")
         {
-             int rehash_idx = int((Hash_idx + c)) % capacity;
-             std::pair Key_Value = (*Buckets)[rehash_idx];
-             if (Key_Value.first == "")
-             {
-                is_hashed = 1 ;
-                std::pair<std::string,std::string> key_value ;
-                key_value.first = key ;
-                key_value.second =Value ;
-                 (*Buckets)[rehash_idx] = key_value;
-                
+            std::pair<std::string,std::string> kv ;
+            kv.first =Key ;
+            kv.second = Value ;
+            (*Buckets)[hash_idx] = kv ;
+            return ;
 
-             }
-             c++ ;
         }
-        if (!is_hashed) std::cout << "Table full\n";
+        else if(kv.first == Key)
+        {
+            std:: cout << "Key already existing \n" ;
+            return ;
+        }
+
 
     }
-  
+    std::cout<< "Hash Table Full \n";
+    return ;
     
 }
 HashTable::HashTable(int cap){
@@ -67,43 +48,24 @@ HashTable::HashTable(int cap){
         Buckets = new std::vector<std::pair<std::string,std::string>>(capacity);
     }
 
-std::string HashTable::Search(std::string Key){
-int Hash_idx = HashFunction(Key,Key.length()) % capacity;
-auto Key_Value = (*Buckets)[Hash_idx];
-if (Key_Value.first  == "")
-{
-    std::cout << "Key not existing  \n" ;
-}
-else{
-    
-     if (Key_Value.first ==  Key)
-     {
-         std::cout << "Key found  \n" ;
-         return Key_Value.second; 
-     }
-     else
-     {
-        int is_hashed = 0 ;
-        int c = 1    ;
-         while(is_hashed == 0 and c < capacity)
-        {
-             int rehash_idx = int((Hash_idx + c)) % capacity;
-             std::pair Key_Value = (*Buckets)[rehash_idx];
-             std::cout << rehash_idx << " \n";
-             if (Key_Value.first == Key)
-             {
-                std::cout << "Key found  \n" ;
-                
-
-             }
-             c++ ;
+std::string HashTable::Search(const std::string& key) {
+    size_t i = HashFunction(key);
+    for (size_t step = 0; step < capacity; ++step) {
+        size_t idx = (i + step) % capacity;
+        const auto& kv = (*Buckets)[idx];
+        if (kv.first.empty()) {
+            std::cout << "Key not found\n";
+            return "";
         }
-         
-         std::cout << "Key not found  \n" ;
-     }
+        if (kv.first == key) {
+            std::cout << "Key found\n";
+            return kv.second;
+        }
+    }
+    std::cout << "Key not found\n";
+    return "";
 }
-return "";
-}
+
 
 void HashTable::Print()
 {
@@ -117,6 +79,7 @@ void HashTable::Print()
     }
     std::cout << "--- End Contents ---\n\n";
 }
+/*
 
 int main()
 {
@@ -175,3 +138,4 @@ int main()
     
     return 0;
 }
+ */

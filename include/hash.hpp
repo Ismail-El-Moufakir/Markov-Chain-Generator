@@ -1,5 +1,5 @@
 #include <vector>
-
+#include <string>
 #ifndef HASH
 #define HASH
 
@@ -10,13 +10,12 @@ class HashTable
     HashTable(int cap);
     std::vector<std::string> Keys ;
     std::vector<std::string> Values ;
-    int HashFunction(std:: string s , int N);
+    size_t HashFunction(const std::string& s);
     std::vector<std::pair<std::string,std::string>> * Buckets ;
-    void Insert(std::string key , std::string values);
-    std::string Search(std::string key);
+    void Insert(const std::string& key, const std::string& values);
+    std::string Search(const std::string& key);
     void Print();
 };
-
 
 
 
